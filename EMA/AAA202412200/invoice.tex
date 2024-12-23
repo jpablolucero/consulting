@@ -1,0 +1,253 @@
+\documentclass[11pt, a4paper]{../awesome-cv}
+\usepackage{longtable}
+\usepackage{svg}
+\usepackage{fp} % Required for invoice calculations
+\usepackage{advdate} % Required for date calculation
+\usepackage[group-separator={,},group-minimum-digits=4, detect-all]{siunitx} % Required for automati
+\usepackage{colortbl} % Required for colouring table cells (used for rules)
+\usepackage{booktabs} % Required for nicer table rules
+\usepackage{multirow} % Required for allowing cells to take up multiple rows in tables
+\usepackage{makecell}
+\usepackage{array} % Required for customizing table spacing and features
+\def\arraystretch{1.2} % Table row spacing, 1 is the default
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.cm, footskip=.2cm}
+\fontdir[../fonts/]
+\colorlet{awesome}{awesome-darknight}
+\setbool{acvSectionColorHighlight}{false}
+
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+\hypersetup{%
+  pdftitle={J. P. Lucero Lorca - Invoice},
+  pdfauthor={Jose Pablo Lucero Lorca},
+  pdfsubject={Invoice},
+  pdfkeywords={applied mathematics, numerical analysis, nuclear engineering},
+  colorlinks=false,% hyperlinks will be black
+  urlbordercolor=gray,% hyperlink borders will be red
+  pdfborderstyle={/S/U/W 0.2}% border style will be underline of width 1pt
+}
+
+\name{José Pablo}{Lucero Lorca}
+\position{applied mathematician - numerical analyst - nuclear
+  engineer}
+\address{3080 Pearl Parkway, APT D-415, Boulder, CO, 80301}
+\mobile{+1(720)919-9118}
+\email{jpablo.lucero@gmail.com}
+\homepage{https://pablo.world/math}
+\github{jpablolucero}
+\linkedin{jpablolucero}
+\recipient
+{EMA}
+{\hspace{0cm}}
+
+\definecolor{highlightcolour}{HTML}{000000} % Colour used for making text stand out
+\definecolor{rulecolour}{HTML}{000000} % Colour used for rules
+
+\newcommand{\payeename}[1]{\renewcommand{\payeename}{#1}}
+\newcommand{\payeejob}[1]{\renewcommand{\payeejob}{#1}}
+\newcommand{\payeeaddresslineone}[1]{\renewcommand{\payeeaddresslineone}{#1}}
+\newcommand{\payeeaddresslinetwo}[1]{\renewcommand{\payeeaddresslinetwo}{#1}}
+\newcommand{\payeecontactlineone}[1]{\renewcommand{\payeecontactlineone}{#1}}
+\newcommand{\payeecontactlinetwo}[1]{\renewcommand{\payeecontactlinetwo}{#1}}
+
+\newcommand{\invoiceref}[1]{\renewcommand{\invoiceref}{#1}}
+\newcommand{\invoiceissued}[1]{\renewcommand{\invoiceissued}{#1}}
+\newcommand{\invoicedue}[1]{\renewcommand{\invoicedue}{#1}}
+\newcommand{\projectname}[1]{\renewcommand{\projectname}{#1}}
+
+\newcommand{\companyname}[1]{\renewcommand{\companyname}{#1}}
+\newcommand{\sendername}[1]{\renewcommand{\sendername}{#1}}
+\newcommand{\senderjob}[1]{\renewcommand{\senderjob}{#1}}
+\newcommand{\senderaddresslineone}[1]{\renewcommand{\senderaddresslineone}{#1}}
+\newcommand{\senderaddresslinetwo}[1]{\renewcommand{\senderaddresslinetwo}{#1}}
+\newcommand{\sendercontactlineone}[1]{\renewcommand{\sendercontactlineone}{#1}}
+\newcommand{\sendercontactlinetwo}[1]{\renewcommand{\sendercontactlinetwo}{#1}}
+
+\newcommand{\termsandconditions}[1]{\renewcommand{\termsandconditions}{#1}}
+
+\newcommand{\taxrate}[1]{\renewcommand{\taxrate}{#1}} % Tax rate used to automatically calculate tax
+
+% Cumulative variables
+\gdef\TotalA{0} % Total before tax
+\gdef\TotalB{0} % Tax
+\gdef\TotalC{0} % Net after tax
+\taxrate{0.0} % The tax rate used to automatically calculate tax, must be set to a decimal between 0 and 1 (for no tax set to 0)
+
+%------------------------------------------------
+% Invoice information
+
+\invoiceref{AAA202412200} % Invoice number
+\invoiceissued{\today} % Date issued
+\invoicedue{\DayAfter[10]} % Due date, a number of days into the future, use 0 for due on receipt
+\projectname{Charge Plus Optimization}
+
+%------------------------------------------------
+% Recipient/payee information
+
+\payeename{Electro Magnetic Applications Inc.}
+\payeejob{}
+\payeeaddresslineone{143 Union Blvd \#900, Lakewood, CO, 80228, United States of America}
+\payeeaddresslinetwo{}
+\payeecontactlineone{Timothy McDonald tim@ema3d.com}
+\payeecontactlinetwo{}
+
+% ------------------------------------------------
+
+\newcommand{\invoiceitem}[3]{
+
+  % Calculation of running variables (current line)
+  \FPmul\gross{#2}{#3}\FPround\gross{\gross}{2} % Calculate the current gross (quantity * rate)
+  \global\let\variableA\gross % Set variable for use in table and other calculations
+  
+  % ------------------------------------------------
+  
+  % Calculation of cumulative variables (total for invoice)
+  \FPeval{\beforetax}{round(\TotalA + \variableA, 2)} % Add the current before tax value to the previous total
+  \global\let\TotalA\beforetax % Set variable for display at the end and in other calculations
+  
+  \FPeval{\tax}{round(\TotalA * \taxrate, 2)} % Calculate the updated total tax to pay
+  \global\let\TotalB\tax % Set variable for display at the end and in other calculations
+  
+  \FPeval{\aftertax}{round(\TotalA + \TotalB, 2)} % Calculate the updated total amount due
+  \global\let\TotalC\aftertax % Set variable for display at the end
+  
+  % ------------------------------------------------
+  
+  \vspace{-0.35cm}
+  % Output the table row
+  #1 & % Item name
+  \num{#2} & % Rate
+  \num{#3} & % Rate
+  \$\num{\variableA} \\\cline{1-1}  % Subtotal
+}
+
+\newenvironment{invoicetable}
+{
+  \begin{longtable}{p{0.6\textwidth} R{0.1\textwidth}  R{0.1\textwidth}        R{0.1\textwidth}}\hline
+                   \textbf{ITEM}  & \textbf{TIME}     & \textbf{RATE}        & \textbf{SUBTOTAL} \\
+                                  & \textbf{[min]}    & \textbf{[\$/minute}] & \\
+    \arrayrulecolor{rulecolour}\toprule[0.5pt]
+    }{
+%    \arrayrulecolor{rulecolour}\bottomrule[0.5pt]
+    \\ % Reduce whitespace before the totals
+                                  && Total & \$\num{\TotalA} \\
+  \end{longtable}
+}
+
+\begin{document}
+
+% Print the header with above personal informations
+% Give optional argument to change alignment(C: center, L: left, R: right)
+\makecvheader[R]
+
+% Print the footer with 3 arguments(<left>, <center>, <right>)
+% Leave any of these blank if they are not needed
+\makecvfooter
+  {\today}
+  {José Pablo Lucero Lorca~~~.~~~Invoice}
+  {}
+
+  \footnotesize
+  \begin{tabular}{p{0.25\textwidth} p{0.22\textwidth} p{0.22\textwidth} p{0.22\textwidth}}
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line at the top of the table
+    \multirow{2}{*}{{\color{highlightcolour} \Huge INVOICE}} & \textbf{Recipient} & \\
+                                                             & \payeename & \payeeaddresslineone & \payeecontactlineone \\
+    \arrayrulecolor{rulecolour}\bottomrule[0.5pt] % Horizontal line at the bottom of the table
+  \end{tabular}
+
+  \vspace{-0.2cm}
+  \footnotesize
+  \begin{tabular}{p{0.25\textwidth} p{0.66\textwidth}}
+    {\bf Electronic payment information} & Wells Fargo - Account number 8094382838 - Routing number 102000076
+  \end{tabular}
+  \vspace{-0.2cm}
+
+  \footnotesize
+  \begin{tabular}{p{0.225\textwidth} p{0.225\textwidth} p{0.225\textwidth} p{0.225\textwidth}}
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line
+    \textbf{Invoice Number} & \textbf{Date} & \textbf{Payment Due} & \textbf{Project Name} \\
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line
+    \invoiceref & \invoiceissued & \invoicedue & \projectname \\
+  \end{tabular}
+  \vspace{-0.3cm}
+  
+  \begin{invoicetable}
+    \bf{November} & & & \\\cline{1-1}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1894} \vspace{0.1cm}\\
+      Meeting on Xdmf and HDF5 formats for parallel output of CHARGE+ results.
+    }{60}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1894} \vspace{0.1cm}\\
+      Provided proposal for Xdmf3 and HDF5 files in order to read
+      Charge’s solutions while it is still running on JIRA. Explained in
+      detail in JIRA comments.
+    }{120}{5}
+    \bf{December} & & & \\\cline{1-1}
+    \invoiceitem{
+      \texttt{\bf EMA3DFEM-50} \vspace{0.1cm}\\
+      Communication with Dustin Ursey on the possible paths for HDF5 output.
+      Investigating SWMR capacities and write an example of C++ generating
+      HDF5 files and Python reading those files during C++ writing process.
+      C++ and Python experiments were logged in a comment, work was logged
+      in \texttt{\bf EMA3D-1894}.
+    }{240}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3DFEM-50} \vspace{0.1cm}\\
+      Communication via Teams with Bryon and Dustin to define details of the way Charge+ stores information and how to translate that to HDF5.
+      Work was logged in \texttt{\bf EMA3D-1894}.
+    }{120}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3DFEM-50} \vspace{0.1cm}\\
+      HDF5 SWMR parallel files work.  Communication via Teams with
+      Eric Miller to inquire of possible specifications from the UI side.
+      Clarifications to Dustin on the parallel model currently in Charge+
+      and the parallel subdomain capacities via METIS.  Clarify the
+      necessity of element-based HDF5 storage and boundary duplication
+      between subdomains.
+      Work was logged in \texttt{\bf EMA3D-1894}.
+    }{120}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3DFEM-50} \vspace{0.1cm}\\
+      Continued work on HDF5 SWMR parallel files.
+      Further analysis of how the data structures will be included
+      in the HDF5 file.
+      XDMF cannot cope with hyperslab slicing because of lack
+      of maintenance on Kitware's side. Going back to a Paraview
+      plugin.
+      Work was logged in \texttt{\bf EMA3D-1894}.
+    }{120}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3DFEM-50} \vspace{0.1cm}\\
+      Testing of first version of HDF5 files from Dustin
+      Ursrey. Discovery of incompatibility with HDFView v3.3.1, replace with
+      HDFView 3.3.2 works. Debugging of the way elements are described with
+      help of Bryon Neufeld w.r.t. the \#elements/\#points ratio.  First
+      successful visualization of Charge+'s parallel output achieved via
+      python plugin. SWMR capabilites not tested yet.
+      Troubleshooting Charge+ Linux issue related to licenses reported by
+      Will Isaac, underlying problem was found to be related to the license update
+      done by Keyton Rogers on Dec 20, Keyton is in contact with Will.
+      Work was logged in \texttt{\bf EMA3D-1894}.
+    }{120}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+  \end{invoicetable}
+
+
+\end{document}

@@ -1,0 +1,187 @@
+\documentclass[11pt, a4paper]{../awesome-cv}
+\usepackage{svg}
+\usepackage{fp} % Required for invoice calculations
+\usepackage{advdate} % Required for date calculation
+\usepackage[group-separator={,},group-minimum-digits=4, detect-all]{siunitx} % Required for automati
+\usepackage{colortbl} % Required for colouring table cells (used for rules)
+\usepackage{booktabs} % Required for nicer table rules
+\usepackage{multirow} % Required for allowing cells to take up multiple rows in tables
+\usepackage{makecell}
+\usepackage{array} % Required for customizing table spacing and features
+\def\arraystretch{1.2} % Table row spacing, 1 is the default
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.cm, footskip=.2cm}
+\fontdir[../fonts/]
+\colorlet{awesome}{awesome-darknight}
+\setbool{acvSectionColorHighlight}{false}
+
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+\hypersetup{%
+  pdftitle={J. P. Lucero Lorca - XXXXXXX},
+  pdfauthor={Jose Pablo Lucero Lorca},
+  pdfsubject={XXXXXXX},
+  pdfkeywords={applied mathematics, numerical analysis, nuclear engineering},
+  colorlinks=false,% hyperlinks will be black
+  urlbordercolor=gray,% hyperlink borders will be red
+  pdfborderstyle={/S/U/W 0.2}% border style will be underline of width 1pt
+}
+
+\name{José Pablo}{Lucero Lorca}
+\position{applied mathematician - numerical analyst - nuclear
+  engineer}
+\address{3080 Pearl Parkway, APT D-415, Boulder, CO, 80301}
+\mobile{+1(720)919-9118}
+\email{jpablo.lucero@gmail.com}
+\homepage{https://pablo.world/math}
+\github{jpablolucero}
+\linkedin{jpablolucero}
+\recipient
+{EMA}
+{\hspace{0cm}}
+\letterdate{\today}
+\lettertitle{Cover Letter}
+\letteropening{Dear Selection Committee,}
+\letterclosing{Sincerely,}
+
+\definecolor{highlightcolour}{HTML}{000000} % Colour used for making text stand out
+\definecolor{rulecolour}{HTML}{000000} % Colour used for rules
+
+\newcommand{\payeename}[1]{\renewcommand{\payeename}{#1}}
+\newcommand{\payeejob}[1]{\renewcommand{\payeejob}{#1}}
+\newcommand{\payeeaddresslineone}[1]{\renewcommand{\payeeaddresslineone}{#1}}
+\newcommand{\payeeaddresslinetwo}[1]{\renewcommand{\payeeaddresslinetwo}{#1}}
+\newcommand{\payeecontactlineone}[1]{\renewcommand{\payeecontactlineone}{#1}}
+\newcommand{\payeecontactlinetwo}[1]{\renewcommand{\payeecontactlinetwo}{#1}}
+
+\newcommand{\invoiceref}[1]{\renewcommand{\invoiceref}{#1}}
+\newcommand{\invoiceissued}[1]{\renewcommand{\invoiceissued}{#1}}
+\newcommand{\invoicedue}[1]{\renewcommand{\invoicedue}{#1}}
+\newcommand{\projectname}[1]{\renewcommand{\projectname}{#1}}
+
+\newcommand{\companyname}[1]{\renewcommand{\companyname}{#1}}
+\newcommand{\sendername}[1]{\renewcommand{\sendername}{#1}}
+\newcommand{\senderjob}[1]{\renewcommand{\senderjob}{#1}}
+\newcommand{\senderaddresslineone}[1]{\renewcommand{\senderaddresslineone}{#1}}
+\newcommand{\senderaddresslinetwo}[1]{\renewcommand{\senderaddresslinetwo}{#1}}
+\newcommand{\sendercontactlineone}[1]{\renewcommand{\sendercontactlineone}{#1}}
+\newcommand{\sendercontactlinetwo}[1]{\renewcommand{\sendercontactlinetwo}{#1}}
+
+\newcommand{\termsandconditions}[1]{\renewcommand{\termsandconditions}{#1}}
+
+\newcommand{\taxrate}[1]{\renewcommand{\taxrate}{#1}} % Tax rate used to automatically calculate tax
+
+% Cumulative variables
+\gdef\TotalA{0} % Total before tax
+\gdef\TotalB{0} % Tax
+\gdef\TotalC{0} % Net after tax
+\taxrate{0.0} % The tax rate used to automatically calculate tax, must be set to a decimal between 0 and 1 (for no tax set to 0)
+
+%------------------------------------------------
+% Invoice information
+
+\invoiceref{XXX202409120} % Invoice number
+\invoiceissued{\today} % Date issued
+\invoicedue{NOT A BILL} % Due date, a number of days into the future, use 0 for due on receipt
+\projectname{Charge Plus Optimization}
+
+%------------------------------------------------
+% Recipient/payee information
+
+\payeename{Electro Magnetic Applications Inc.}
+\payeejob{}
+\payeeaddresslineone{143 Union Blvd \#900, Lakewood, CO, 80228, United States of America}
+\payeeaddresslinetwo{}
+\payeecontactlineone{Timothy McDonald tim@ema3d.com}
+\payeecontactlinetwo{}
+
+% ------------------------------------------------
+
+\newcommand{\invoiceitem}[3]{
+
+  % Calculation of running variables (current line)
+  \FPmul\gross{#2}{#3}\FPround\gross{\gross}{2} % Calculate the current gross (quantity * rate)
+  \global\let\variableA\gross % Set variable for use in table and other calculations
+  
+  % ------------------------------------------------
+  
+  % Calculation of cumulative variables (total for invoice)
+  \FPeval{\beforetax}{round(\TotalA + \variableA, 2)} % Add the current before tax value to the previous total
+  \global\let\TotalA\beforetax % Set variable for display at the end and in other calculations
+  
+  \FPeval{\tax}{round(\TotalA * \taxrate, 2)} % Calculate the updated total tax to pay
+  \global\let\TotalB\tax % Set variable for display at the end and in other calculations
+  
+  \FPeval{\aftertax}{round(\TotalA + \TotalB, 2)} % Calculate the updated total amount due
+  \global\let\TotalC\aftertax % Set variable for display at the end
+  
+  % ------------------------------------------------
+  
+  % Output the table row
+  #1 & % Item name
+  \num{#2} & % Rate
+  \num{#3} & % Rate
+  \$\num{\variableA} \\  % Subtotal
+}
+
+\newenvironment{invoicetable}
+{
+  \begin{tabular}{p{0.6\textwidth} R{0.1\textwidth}  R{0.1\textwidth}        R{0.1\textwidth}}
+                   \textbf{ITEM}  & \textbf{TIME}     & \textbf{RATE}        & \textbf{SUBTOTAL} \\
+                                  & \textbf{[min]}    & \textbf{[\$/minute}] & \\
+    \arrayrulecolor{rulecolour}\toprule[0.5pt]
+    }{
+    \arrayrulecolor{rulecolour}\bottomrule[0.5pt]
+    \\ [-1em] % Reduce whitespace before the totals
+                                  && Total & \$\num{\TotalA} \\
+  \end{tabular}
+}
+
+\begin{document}
+
+% Print the header with above personal informations
+% Give optional argument to change alignment(C: center, L: left, R: right)
+\makecvheader[R]
+
+% Print the footer with 3 arguments(<left>, <center>, <right>)
+% Leave any of these blank if they are not needed
+\makecvfooter
+  {\today}
+  {José Pablo Lucero Lorca~~~.~~~Not An Invoice}
+  {}
+
+  \footnotesize
+  \begin{tabular}{p{0.24\textwidth} p{0.22\textwidth} p{0.22\textwidth} p{0.22\textwidth}}
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line at the top of the table
+    \multirow{2}{*}{{\color{highlightcolour} \Huge XXXXXXXX}} & \textbf{Recipient} & \\
+                                                             & \payeename & \payeeaddresslineone & \payeecontactlineone \\
+    \arrayrulecolor{rulecolour}\bottomrule[0.5pt] % Horizontal line at the bottom of the table
+  \end{tabular}
+
+  \footnotesize
+
+  {\bf THIS IS A PRELIMINARY LIST OF TASKS PERFORMED UNTIL THIS DATE AFTER LAST BILL
+    AAA202407230 REQUESTED BY EMA BY TOM CHUMASH AND BO SHELBY. THIS IS NOT A BILL.}
+  
+  \begin{tabular}{p{0.225\textwidth} p{0.225\textwidth} p{0.225\textwidth} p{0.225\textwidth}}
+    \textbf{XXXXXXX Number} & \textbf{Date} & \textbf{Payment Due} & \textbf{Project Name} \\
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line
+    \invoiceref & \invoiceissued & \invoicedue & \projectname \\
+  \end{tabular}
+
+  \begin{invoicetable}
+    \bf{August} & & & \\
+    \invoiceitem{Backlog of configurations required to run charge on Linux. 
+      
+      Fix problems with license, problems with transferring files into the Linux machine (WinSCP). 
+      
+      Familiarize with modifications in the test suite regarding execution scripts and locations of files until successful execution of tests. Tests are needed to guarantee that the version used is not only correct but also compiled correctly.
+      
+      General overlook of data structures in VectorSolve , identify coverage of the given test, time properly. }{180}{5.0}
+    \bf{September} & & & \\
+    \invoiceitem{Time measurements and determination of the time bottlenecks in FemQS::VectorSolve. Discovery of main bottleneck due to the usage of CSRFormat data structures that was underperformant in the past when working with FemMatrix::parvector to optimize FemMatrix::BiCGStabVectorSolve}{120}{5.0}
+    \invoiceitem{New FemQS.cpp file created with loop simplification to improve vectorization. Measurements give 70\% speed-up on FemQS::UpdateGlob and 40\% speed-up on FemQS::VectorSolve.}{120}{5.0}
+    \invoiceitem{Microsoft Teams chat, delivered new FemQS.cpp for testing, explained changes involved and impact of loop simplifications. Agreed on concentrating in BuildForce, BuildGrad and GradSolve!.}{65}{5.0}
+    \invoiceitem{Study of FemQS::BuildForce. Identification of critical loop and assignments. Findings show a high amount of branching, recommendations issued.}{120}{5.0}
+    \invoiceitem{Microsoft Teams conversation about the usage of MPI\_AllReduce in ReadNew::PIC::VectorAll. Recommeded usage of MPI\_Reduce instead to reduce operations by a factor of 2 since no redistribution of the final result is needed for writing results to disk.}{30}{5.0}
+  \end{invoicetable}
+
+\end{document}

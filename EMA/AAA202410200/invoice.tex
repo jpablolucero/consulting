@@ -1,0 +1,280 @@
+\documentclass[11pt, a4paper]{../awesome-cv}
+\usepackage{longtable}
+\usepackage{svg}
+\usepackage{fp} % Required for invoice calculations
+\usepackage{advdate} % Required for date calculation
+\usepackage[group-separator={,},group-minimum-digits=4, detect-all]{siunitx} % Required for automati
+\usepackage{colortbl} % Required for colouring table cells (used for rules)
+\usepackage{booktabs} % Required for nicer table rules
+\usepackage{multirow} % Required for allowing cells to take up multiple rows in tables
+\usepackage{makecell}
+\usepackage{array} % Required for customizing table spacing and features
+\def\arraystretch{1.2} % Table row spacing, 1 is the default
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.cm, footskip=.2cm}
+\fontdir[../fonts/]
+\colorlet{awesome}{awesome-darknight}
+\setbool{acvSectionColorHighlight}{false}
+
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+\hypersetup{%
+  pdftitle={J. P. Lucero Lorca - Invoice},
+  pdfauthor={Jose Pablo Lucero Lorca},
+  pdfsubject={Invoice},
+  pdfkeywords={applied mathematics, numerical analysis, nuclear engineering},
+  colorlinks=false,% hyperlinks will be black
+  urlbordercolor=gray,% hyperlink borders will be red
+  pdfborderstyle={/S/U/W 0.2}% border style will be underline of width 1pt
+}
+
+\name{José Pablo}{Lucero Lorca}
+\position{applied mathematician - numerical analyst - nuclear
+  engineer}
+\address{3080 Pearl Parkway, APT D-415, Boulder, CO, 80301}
+\mobile{+1(720)919-9118}
+\email{jpablo.lucero@gmail.com}
+\homepage{https://pablo.world/math}
+\github{jpablolucero}
+\linkedin{jpablolucero}
+\recipient
+{EMA}
+{\hspace{0cm}}
+
+\definecolor{highlightcolour}{HTML}{000000} % Colour used for making text stand out
+\definecolor{rulecolour}{HTML}{000000} % Colour used for rules
+
+\newcommand{\payeename}[1]{\renewcommand{\payeename}{#1}}
+\newcommand{\payeejob}[1]{\renewcommand{\payeejob}{#1}}
+\newcommand{\payeeaddresslineone}[1]{\renewcommand{\payeeaddresslineone}{#1}}
+\newcommand{\payeeaddresslinetwo}[1]{\renewcommand{\payeeaddresslinetwo}{#1}}
+\newcommand{\payeecontactlineone}[1]{\renewcommand{\payeecontactlineone}{#1}}
+\newcommand{\payeecontactlinetwo}[1]{\renewcommand{\payeecontactlinetwo}{#1}}
+
+\newcommand{\invoiceref}[1]{\renewcommand{\invoiceref}{#1}}
+\newcommand{\invoiceissued}[1]{\renewcommand{\invoiceissued}{#1}}
+\newcommand{\invoicedue}[1]{\renewcommand{\invoicedue}{#1}}
+\newcommand{\projectname}[1]{\renewcommand{\projectname}{#1}}
+
+\newcommand{\companyname}[1]{\renewcommand{\companyname}{#1}}
+\newcommand{\sendername}[1]{\renewcommand{\sendername}{#1}}
+\newcommand{\senderjob}[1]{\renewcommand{\senderjob}{#1}}
+\newcommand{\senderaddresslineone}[1]{\renewcommand{\senderaddresslineone}{#1}}
+\newcommand{\senderaddresslinetwo}[1]{\renewcommand{\senderaddresslinetwo}{#1}}
+\newcommand{\sendercontactlineone}[1]{\renewcommand{\sendercontactlineone}{#1}}
+\newcommand{\sendercontactlinetwo}[1]{\renewcommand{\sendercontactlinetwo}{#1}}
+
+\newcommand{\termsandconditions}[1]{\renewcommand{\termsandconditions}{#1}}
+
+\newcommand{\taxrate}[1]{\renewcommand{\taxrate}{#1}} % Tax rate used to automatically calculate tax
+
+% Cumulative variables
+\gdef\TotalA{0} % Total before tax
+\gdef\TotalB{0} % Tax
+\gdef\TotalC{0} % Net after tax
+\taxrate{0.0} % The tax rate used to automatically calculate tax, must be set to a decimal between 0 and 1 (for no tax set to 0)
+
+%------------------------------------------------
+% Invoice information
+
+\invoiceref{AAA202410200} % Invoice number
+\invoiceissued{\today} % Date issued
+\invoicedue{\DayAfter[10]} % Due date, a number of days into the future, use 0 for due on receipt
+\projectname{Charge Plus Optimization}
+
+%------------------------------------------------
+% Recipient/payee information
+
+\payeename{Electro Magnetic Applications Inc.}
+\payeejob{}
+\payeeaddresslineone{143 Union Blvd \#900, Lakewood, CO, 80228, United States of America}
+\payeeaddresslinetwo{}
+\payeecontactlineone{Timothy McDonald tim@ema3d.com}
+\payeecontactlinetwo{}
+
+% ------------------------------------------------
+
+\newcommand{\invoiceitem}[3]{
+
+  % Calculation of running variables (current line)
+  \FPmul\gross{#2}{#3}\FPround\gross{\gross}{2} % Calculate the current gross (quantity * rate)
+  \global\let\variableA\gross % Set variable for use in table and other calculations
+  
+  % ------------------------------------------------
+  
+  % Calculation of cumulative variables (total for invoice)
+  \FPeval{\beforetax}{round(\TotalA + \variableA, 2)} % Add the current before tax value to the previous total
+  \global\let\TotalA\beforetax % Set variable for display at the end and in other calculations
+  
+  \FPeval{\tax}{round(\TotalA * \taxrate, 2)} % Calculate the updated total tax to pay
+  \global\let\TotalB\tax % Set variable for display at the end and in other calculations
+  
+  \FPeval{\aftertax}{round(\TotalA + \TotalB, 2)} % Calculate the updated total amount due
+  \global\let\TotalC\aftertax % Set variable for display at the end
+  
+  % ------------------------------------------------
+  
+  \vspace{-0.35cm}
+  % Output the table row
+  #1 & % Item name
+  \num{#2} & % Rate
+  \num{#3} & % Rate
+  \$\num{\variableA} \\\cline{1-1}  % Subtotal
+}
+
+\newenvironment{invoicetable}
+{
+  \begin{longtable}{p{0.6\textwidth} R{0.1\textwidth}  R{0.1\textwidth}        R{0.1\textwidth}}\hline
+                   \textbf{ITEM}  & \textbf{TIME}     & \textbf{RATE}        & \textbf{SUBTOTAL} \\
+                                  & \textbf{[min]}    & \textbf{[\$/minute}] & \\
+    \arrayrulecolor{rulecolour}\toprule[0.5pt]
+    }{
+%    \arrayrulecolor{rulecolour}\bottomrule[0.5pt]
+    \\ % Reduce whitespace before the totals
+                                  && Total & \$\num{\TotalA} \\
+  \end{longtable}
+}
+
+\begin{document}
+
+% Print the header with above personal informations
+% Give optional argument to change alignment(C: center, L: left, R: right)
+\makecvheader[R]
+
+% Print the footer with 3 arguments(<left>, <center>, <right>)
+% Leave any of these blank if they are not needed
+\makecvfooter
+  {\today}
+  {José Pablo Lucero Lorca~~~.~~~Invoice}
+  {}
+
+  \footnotesize
+  \begin{tabular}{p{0.25\textwidth} p{0.22\textwidth} p{0.22\textwidth} p{0.22\textwidth}}
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line at the top of the table
+    \multirow{2}{*}{{\color{highlightcolour} \Huge INVOICE}} & \textbf{Recipient} & \\
+                                                             & \payeename & \payeeaddresslineone & \payeecontactlineone \\
+    \arrayrulecolor{rulecolour}\bottomrule[0.5pt] % Horizontal line at the bottom of the table
+  \end{tabular}
+
+  \vspace{-0.2cm}
+  \footnotesize
+  \begin{tabular}{p{0.25\textwidth} p{0.66\textwidth}}
+    {\bf Electronic payment information} & Wells Fargo - Account number 8094382838 - Routing number 102000076
+  \end{tabular}
+  \vspace{-0.2cm}
+
+  \footnotesize
+  \begin{tabular}{p{0.225\textwidth} p{0.225\textwidth} p{0.225\textwidth} p{0.225\textwidth}}
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line
+    \textbf{Invoice Number} & \textbf{Date} & \textbf{Payment Due} & \textbf{Project Name} \\
+    \arrayrulecolor{rulecolour}\toprule[0.5pt] % Horizontal line
+    \invoiceref & \invoiceissued & \invoicedue & \projectname \\
+  \end{tabular}
+  \vspace{-0.3cm}
+  
+  \begin{invoicetable}
+    \bf{September} & & & \\\cline{1-1}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+      
+      Transfer new test case files from Koi with
+      modifications. Include test case in test suite and run to check that
+      no \texttt{NaN}’s are present. The case run successfully in 50min. Transfer
+      output back in case Bryon wants to take a look.
+    }{10}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      Instrumentation of \texttt{PIC::UpdateNew()} separated in meaningful
+      sections. Will report relevant line sections and time percentages. Had
+      to deal with an instability on Linux where the code stalls, will
+      report it back to Bryon and continue to try to find the key line
+      producing it.
+    }{120}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      Instability associated to \texttt{Rate Preprocess = True} identified and
+      reported in comment.  Tip of \texttt{branch1} has been modified in such a way
+      that the instability no longer appears, so working with new commit
+      until further notice about the issue.
+    }{60}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+      
+      Identification of repeated calls to \texttt{vector <double>
+        efield = RN.fem\_->EFE(el\_num,xval)} as the source of {\bf 40\%} of
+      the time in \texttt{PIC::UpdateNew(double)} investigating algorithmic
+      improvements for reading \texttt{efield}.
+    }{30}{5}
+    \bf{October} & & & \\\cline{1-1}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      Identification of unnecessary code in
+      \texttt{TE4SubStruct::GradValues}, plus improvements in constness and
+      redirection led to a {\bf ~70\%} speedup in the call to
+      \texttt{RN.fem\_->EFE} inside \texttt{PIC::UpdateNew(double)}, and overall {\bf
+        $\sim$20\%} in \texttt{PIC::UpdateNew(double)}.
+    }{90}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      Bring the code actually being executed to obtain \texttt{efield}
+      for the \texttt{RF\_cube} case provided by Bryon out of the virtual
+      table lookup. Result is {\bf 330\%} speedup to obtain \texttt{efield}
+      and {\bf 42\%} speedup overall in \texttt{PIC::UpdateNew(double)}
+      Report to Bryon through JIRA.
+    }{180}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      New measurements indicate the {\bf $\boldsymbol{\sim}$2 million calls per timestep} to
+      \texttt{int ReadNew::PIC::CurrentElement(vector <double>)}, now take
+      {\bf 20\%} of the time in void
+      \texttt{ReadNew::PIC::UpdateNew(double)}. Looking into the necessity of the
+      costly search performed in that function.
+    }{60}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      New measurements on Bryon’s last commit as of today on Linux, confirming
+      a {\bf 200\%} speedup of \texttt{ReadNew::PIC::UpdateNew(double)} after
+      \texttt{efield} optimization. Reporting back
+      to Bryon with answer to inquiry about space filling curves with
+      bibliography.
+    }{30}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      Analyzed \texttt{int ReadNew::PIC::CurrentElement(vector
+        <double>, vector <double>, Uint)}.  Found
+      out that it spends most of the time querying a \texttt{vector <double>
+        kElemMap} and not a lot can be gained modifying the code as it stands
+      for now. Shifted focus to other parts of the code.
+    }{60}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+      \nopagebreak
+      Simplifying the calculation of \texttt{energy\_1},
+      \texttt{energy\_2} and \texttt{energy\_3} and taking away branching for
+      vectorization led to {\bf 35\%} speedup measured. Informed Bryon
+      on comment.
+    }{120}{5}
+    \invoiceitem{
+      \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+
+      New timings breakdown, identification of new main objectives of
+      optimization, report to Bryon through JIRA.
+    }{60}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+    % \invoiceitem{
+    %   \texttt{\bf EMA3D-1418} \vspace{0.1cm}\\
+    % }{}{5}
+  \end{invoicetable}
+
+
+\end{document}
